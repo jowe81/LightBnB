@@ -1,3 +1,11 @@
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  user: 'vagrant',
+  host: 'localhost',
+  database: 'lightbnb'
+});
+
 const properties = require('./json/properties.json');
 const users = require('./json/users.json');
 
@@ -66,13 +74,35 @@ exports.getAllReservations = getAllReservations;
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = function(options, limit = 10) {
-  const limitedProperties = {};
-  for (let i = 1; i <= limit; i++) {
-    limitedProperties[i] = properties[i];
-  }
-  return Promise.resolve(limitedProperties);
-}
+const getAllProperties = (options, limit = 10) => {
+
+  const query = {
+    text: 'SELECT * FROM properties LIMIT $1',
+    values: [ limit ]
+  };
+
+  return pool
+    .query(query)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => console.log(err.message));
+
+  /*
+  //My initial implementation (which also works:)  
+  return new Promise((resolve, reject) => {
+
+  
+    pool
+      .query(query)
+      .then(res => {
+        resolve(res.rows);
+      })
+      .catch(err => console.log(err.message));
+  
+  });
+  */
+};
 exports.getAllProperties = getAllProperties;
 
 
