@@ -1,0 +1,3 @@
+psql -h localhost -p 5432 -U vagrant lightbnb < ./migrations/01_schema.sql
+psql -h localhost -p 5432 -U vagrant lightbnb < ./seeds/01_seeds.sql
+psql -h localhost -p 5432 -U vagrant lightbnb < ./seeds/02_seeds.sql
