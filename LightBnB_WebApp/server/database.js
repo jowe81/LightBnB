@@ -100,33 +100,64 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = (options, limit = 10) => {
+  const queryParams = [];
+
+  let queryString = `
+    SELECT properties.*, AVG(property_reviews.rating) as average_rating 
+    FROM properties
+    JOIN property_reviews ON property_reviews.property_id = properties.id
+  `;
+
+  //The 'WHERE city' clause below will always be added, whether or not the filter has been set. Here's why:
+  //Together with the wildcard (%) on the parameter it serves a triple purpose
+  // - the wildcard will make the clause still find cities with only part of their names entered
+  // - the wildcard saves me the hassle of programmatically determining whether to use AND or WHERE
+  //   for the next option that's been set; it will always be AND, because an empty options.city
+  //   parameter will have the same result as omitting the filter entirely
+  // - the third benefit is that minimum_price_per_night and maximum_price_per_night can be
+  //   used independent of each other (it's safe to set only one of the two)
+  queryParams.push(`%${options.city}%`);
+  queryString += `WHERE city LIKE $${queryParams.length} `;
+
+  if (options.owner_id) {
+    queryParams.push(options.owner_id);
+    queryString += `AND owner_id = $${queryParams.length} `;
+  }
+
+  if (options.minimum_price_per_night) {
+    queryParams.push(options.minimum_price_per_night * 100); //dollars to cents
+    queryString += `AND cost_per_night >= $${queryParams.length} `;
+  }
+
+  if (options.maximum_price_per_night) {
+    queryParams.push(options.maximum_price_per_night * 100); //dollars to cents
+    queryString += `AND cost_per_night <= $${queryParams.length} `;
+  }
+
+  queryString += `
+    GROUP BY properties.id
+  `;
+
+  if (options.minimum_rating) {
+    queryParams.push(options.minimum_rating);
+    queryString += `HAVING AVG(property_reviews.rating) >= $${queryParams.length} `;
+  }
+
+  queryParams.push(limit);
+  queryString += `
+    ORDER BY cost_per_night  
+    LIMIT $${queryParams.length}
+  `;
 
   const query = {
-    text: 'SELECT * FROM properties LIMIT $1',
-    values: [ limit ]
+    text: queryString,
+    values: queryParams
   };
 
   return pool
     .query(query)
-    .then(res => {
-      return res.rows;
-    })
+    .then(res => res.rows)
     .catch(err => console.log(err.message));
-
-  /*
-  //My initial implementation (which also works:)
-  return new Promise((resolve, reject) => {
-
-  
-    pool
-      .query(query)
-      .then(res => {
-        resolve(res.rows);
-      })
-      .catch(err => console.log(err.message));
-  
-  });
-  */
 };
 exports.getAllProperties = getAllProperties;
 
