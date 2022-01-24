@@ -5,7 +5,7 @@
 /**
  * Return a comma seperated list of property names
  * @param {Object} object An object
- * @returns {string} Comma separated list of object's properties
+ * @returns {String} Comma separated list of object's properties
  */
 const propertiesToCSV = object => {
   const keysArr = Object.keys(object);
@@ -15,7 +15,7 @@ const propertiesToCSV = object => {
 /**
  * Return a list of the form "$1, $2, ... $n", with n placeholders
  * @param {number} n No of placeholders to concatenate
- * @returns 
+ * @returns {String} Comma separated list of placeholders
  */
 const placeholdersToCSV = n => {
   const arr = [];

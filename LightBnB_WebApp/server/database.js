@@ -1,14 +1,4 @@
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  user: 'vagrant',
-  host: 'localhost',
-  database: 'lightbnb'
-});
-
-const properties = require('./json/properties.json');
-const users = require('./json/users.json');
-
+const { db } = require('./db');
 const dbHelpers = require('./dbHelpers');
 
 /// Users
@@ -23,7 +13,7 @@ const getUserWithEmail = function(email) {
     text: 'SELECT * FROM users WHERE email = $1 LIMIT 1;',
     values: [email]
   };
-  return pool
+  return db
     .query(query)
     .then(res => res.rows[0] || null)
     .catch(err => console.log(err.message));
@@ -40,7 +30,7 @@ const getUserWithId = function(id) {
     text: 'SELECT * FROM users WHERE id = $1;',
     values: [id]
   };
-  return pool
+  return db
     .query(query)
     .then(res => res.rows[0] || null)
     .catch(err => console.log(err.message));
@@ -58,7 +48,7 @@ const addUser =  function(user) {
     text: 'INSERT INTO users (name, email, password) VALUES($1, $2, $3) RETURNING *;',
     values: [user.name, user.email, user.password]
   };
-  return pool
+  return db
     .query(query)
     .then(res => res.rows[0] || null)
     .catch(err => console.log(err.message));
@@ -82,11 +72,11 @@ const getAllReservations = function(guest_id, limit = 10) {
       WHERE reservations.guest_id = $1
       GROUP BY reservations.id, properties.id
       ORDER BY reservations.start_date
-      LIMIT 10;    
+      LIMIT $2;    
     `,
-    values: [guest_id]
+    values: [guest_id, limit]
   };
-  return pool
+  return db
     .query(query)
     .then(res => res.rows)
     .catch(err => console.log(err.message));
@@ -118,7 +108,7 @@ const getAllProperties = (options, limit = 10) => {
   //   parameter will have the same result as omitting the filter entirely
   // - the third benefit is that minimum_price_per_night and maximum_price_per_night can be
   //   used independent of each other (it's safe to set only one of the two)
-  queryParams.push(`%${options.city}%`);
+  queryParams.push(`%${options.city || ''}%`);
   queryString += `WHERE city LIKE $${queryParams.length} `;
 
   if (options.owner_id) {
@@ -156,7 +146,7 @@ const getAllProperties = (options, limit = 10) => {
     values: queryParams
   };
 
-  return pool
+  return db
     .query(query)
     .then(res => res.rows)
     .catch(err => console.log(err.message));
@@ -170,10 +160,11 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
+  //Note: in the current state of the project, property.cost_per_night will be a dollar value,
+  //not a cent value - I could fix that here, but it would be the wrong place to do so
   return new Promise((resolve, reject) => {
     const query = dbHelpers.getInsertQuery(property, "properties");
-    console.log(query);
-    pool
+    db
       .query(query)
       .then(res => resolve(res.rows))
       .catch(err => reject(err));
