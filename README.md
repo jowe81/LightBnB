@@ -10,7 +10,7 @@ The relevant files are:
 
 [./1_queries/*](./1_queries)
 
-[./migrations/01_schema.sql]()
+[migrations/01_schema.sql]()
 
 [./seeds/01_seeds.sql]()
 
