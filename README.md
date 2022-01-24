@@ -14,8 +14,8 @@ The relevant files are:
 
 [./seeds/01_seeds.sql](https://github.com/jowe81/LightBnB/blob/main/seeds/01_seeds.sql)
 
-[./LightBNB_WebApp/server/database.js](https://github.com/jowe81/LightBnB/blob/main/LightBNB_WebApp/server/database.js)
+[./LightBNB_WebApp/server/database.js](https://github.com/jowe81/LightBnB/blob/main/LightBnB_WebApp/server/database.js)
 
-[./LightBNB_WebApp/server/db/index.js](https://github.com/jowe81/LightBnB/blob/main/LightBNB_WebApp/server/db/index.js)
+[./LightBNB_WebApp/server/db/index.js](https://github.com/jowe81/LightBnB/blob/main/LightBnB_WebApp/server/db/index.js)
 
-[./LightBnb_WebApp/server/dbHelpers.js](https://github.com/jowe81/LightBnB/blob/main/LightBnb_WebApp/server/dbHelpers.js)
+[./LightBnb_WebApp/server/dbHelpers.js](https://github.com/jowe81/LightBnB/blob/main/LightBnB_WebApp/server/dbHelpers.js)
