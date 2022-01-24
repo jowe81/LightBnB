@@ -9,6 +9,8 @@ const pool = new Pool({
 const properties = require('./json/properties.json');
 const users = require('./json/users.json');
 
+const dbHelpers = require('./dbHelpers');
+
 /// Users
 
 /**
@@ -168,9 +170,13 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
-}
+  return new Promise((resolve, reject) => {
+    const query = dbHelpers.getInsertQuery(property, "properties");
+    console.log(query);
+    pool
+      .query(query)
+      .then(res => resolve(res.rows))
+      .catch(err => reject(err));
+  });
+};
 exports.addProperty = addProperty;
